@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulado — Ecossistema DevOps</title>
+<style>
+  :root{
+    --navy:#0F172A;
+    --navy-soft:#1E293B;
+    --navy-card:#16213E;
+    --cyan:#0EA5E9;
+    --cyan-soft:#BAE6FD;
+    --cyan-dim:#0369A1;
+    --amber:#F59E0B;
+    --amber-soft:#FDE9C8;
+    --amber-dim:#B45309;
+    --bg:#F4F6FA;
+    --surface:#FFFFFF;
+    --text:#1E293B;
+    --muted:#64748B;
+    --border:#E2E8F0;
+    --green:#0F9D63;
+    --green-soft:#E3F7EE;
+    --red:#DC3545;
+    --red-soft:#FDECEE;
+    --font-head: Georgia, 'Times New Roman', serif;
+    --font-body: 'Segoe UI', system-ui, -apple-system, Roboto, Arial, sans-serif;
+    --font-mono: 'Consolas', 'SFMono-Regular', Menlo, Monaco, monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--font-body);
+    line-height:1.5;
+    padding-bottom:80px;
+  }
+  a{color:var(--cyan-dim);}
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    background:var(--navy);
+    color:#fff;
+    padding:14px 20px;
+    position:sticky;
+    top:0;
+    z-index:50;
+    box-shadow:0 2px 10px rgba(0,0,0,.18);
+  }
+  .topbar-inner{
+    max-width:900px;
+    margin:0 auto;
+    display:flex;
+    align-items:center;
+    gap:16px;
+  }
+  .topbar-prompt{
+    font-family:var(--font-mono);
+    font-size:12.5px;
+    color:var(--cyan-soft);
+    white-space:nowrap;
+  }
+  .topbar-prompt .dot{
+    display:inline-block;width:7px;height:7px;border-radius:50%;
+    background:var(--amber);margin-right:7px;
+  }
+  .progress-wrap{flex:1;}
+  .progress-label{
+    font-family:var(--font-mono);
+    font-size:11.5px;
+    color:var(--cyan-soft);
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:4px;
+  }
+  .progress-track{
+    height:6px;
+    background:var(--navy-soft);
+    border-radius:4px;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,var(--cyan),var(--amber));
+    transition:width .25s ease;
+  }
+
+  /* ---------- header / hero ---------- */
+  .hero{
+    max-width:900px;
+    margin:0 auto;
+    padding:38px 20px 8px;
+  }
+  .eyebrow{
+    font-family:var(--font-mono);
+    font-size:12.5px;
+    letter-spacing:.04em;
+    color:var(--cyan-dim);
+    margin:0 0 10px;
+  }
+  h1{
+    font-family:var(--font-head);
+    font-size:clamp(28px,4vw,40px);
+    line-height:1.15;
+    margin:0 0 14px;
+    color:var(--navy);
+  }
+  .hero p{
+    max-width:70ch;
+    color:var(--muted);
+    font-size:15.5px;
+    margin:0 0 10px;
+  }
+  .instructions{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-left:4px solid var(--amber);
+    border-radius:6px;
+    padding:16px 18px;
+    margin-top:18px;
+    font-size:14.5px;
+    color:var(--text);
+  }
+  .instructions strong{color:var(--navy);}
+  .instructions ul{margin:8px 0 0; padding-left:20px;}
+  .instructions li{margin-bottom:4px;}
+
+  /* ---------- question cards ---------- */
+  main{max-width:900px;margin:0 auto;padding:10px 20px 20px;}
+  .qcard{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:22px 24px 20px;
+    margin:18px 0;
+    scroll-margin-top:90px;
+  }
+  .qcard.unanswered-flag{
+    border-color:var(--amber);
+    box-shadow:0 0 0 3px var(--amber-soft);
+  }
+  .qmeta{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:10px;
+  }
+  .qnum{
+    font-family:var(--font-mono);
+    font-size:12.5px;
+    color:#fff;
+    background:var(--navy);
+    padding:3px 10px;
+    border-radius:20px;
+  }
+  .qtopic{
+    font-family:var(--font-mono);
+    font-size:11.5px;
+    color:var(--cyan-dim);
+    background:var(--cyan-soft);
+    padding:3px 10px;
+    border-radius:20px;
+  }
+  .qscenario{
+    font-style:italic;
+    color:var(--muted);
+    font-size:14.5px;
+    margin:6px 0 10px;
+    border-left:3px solid var(--border);
+    padding-left:12px;
+  }
+  .qtext{
+    font-size:16.5px;
+    font-weight:600;
+    color:var(--navy);
+    margin:0 0 14px;
+  }
+  .options{display:flex;flex-direction:column;gap:9px;}
+  .option{
+    display:flex;
+    align-items:flex-start;
+    gap:11px;
+    border:1.5px solid var(--border);
+    border-radius:8px;
+    padding:11px 14px;
+    cursor:pointer;
+    transition:border-color .15s, background .15s;
+  }
+  .option:hover{border-color:var(--cyan);background:#F5FBFF;}
+  .option input{margin-top:3px; accent-color:var(--cyan-dim); flex-shrink:0;}
+  .option .optletter{
+    font-family:var(--font-mono);
+    font-weight:700;
+    color:var(--cyan-dim);
+    min-width:16px;
+  }
+  .option.selected{border-color:var(--cyan-dim); background:#EAF6FF;}
+  .option span.opttext{font-size:14.8px;}
+
+  /* graded state */
+  .qcard.graded .option{cursor:default;}
+  .qcard.graded .option:hover{background:none;border-color:var(--border);}
+  .option.correct-answer{border-color:var(--green); background:var(--green-soft);}
+  .option.wrong-answer{border-color:var(--red); background:var(--red-soft);}
+  .verdict{
+    margin-top:14px;
+    padding:12px 14px;
+    border-radius:8px;
+    font-size:14px;
+    display:none;
+  }
+  .qcard.graded .verdict{display:block;}
+  .verdict.ok{background:var(--green-soft); color:#0b6b47; border-left:4px solid var(--green);}
+  .verdict.no{background:var(--red-soft); color:#9c1c2a; border-left:4px solid var(--red);}
+  .verdict .tag{font-weight:700; display:block; margin-bottom:4px;}
+  .verdict p{margin:0;}
+
+  /* ---------- finish card ---------- */
+  .finish-card{
+    background:var(--navy);
+    color:#fff;
+    border-radius:10px;
+    padding:26px 26px 24px;
+    margin:32px 0 10px;
+  }
+  .finish-card h2{
+    font-family:var(--font-head);
+    font-size:24px;
+    margin:0 0 8px;
+  }
+  .finish-card p{color:var(--cyan-soft); font-size:14.5px; margin:0 0 18px;}
+  .name-field label{
+    display:block;
+    font-size:13px;
+    color:var(--cyan-soft);
+    margin-bottom:6px;
+    font-family:var(--font-mono);
+  }
+  .name-field input{
+    width:100%;
+    padding:12px 14px;
+    border-radius:7px;
+    border:1.5px solid var(--navy-soft);
+    background:var(--navy-soft);
+    color:#fff;
+    font-size:15px;
+    font-family:var(--font-body);
+  }
+  .name-field input::placeholder{color:#64748B;}
+  .name-field input:focus{outline:2px solid var(--cyan); border-color:var(--cyan);}
+  .field-error{
+    color:var(--amber);
+    font-size:13px;
+    margin-top:7px;
+    display:none;
+    font-family:var(--font-mono);
+  }
+  .btn-row{margin-top:18px; display:flex; gap:12px; flex-wrap:wrap; align-items:center;}
+  button{
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:15px;
+    border:none;
+    border-radius:7px;
+    padding:13px 22px;
+    cursor:pointer;
+  }
+  .btn-primary{background:var(--amber); color:var(--navy);}
+  .btn-primary:hover{background:#ffb02e;}
+  .btn-ghost{background:transparent; color:#fff; border:1.5px solid var(--navy-soft);}
+  .btn-ghost:hover{border-color:var(--cyan);}
+  .unanswered-note{font-size:13px; color:var(--amber); font-family:var(--font-mono); margin-top:10px; display:none;}
+
+  /* ---------- results ---------- */
+  #results{display:none;}
+  .result-summary{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:26px;
+    margin:24px 0;
+  }
+  .result-top{
+    display:flex;
+    flex-wrap:wrap;
+    gap:24px;
+    align-items:center;
+    justify-content:space-between;
+    border-bottom:1px solid var(--border);
+    padding-bottom:20px;
+    margin-bottom:20px;
+  }
+  .result-student p{margin:0; color:var(--muted); font-size:13px;}
+  .result-student h3{margin:2px 0 0; font-family:var(--font-head); font-size:20px; color:var(--navy);}
+  .score-badge{
+    text-align:center;
+    min-width:110px;
+  }
+  .score-badge .num{
+    font-family:var(--font-head);
+    font-size:40px;
+    font-weight:700;
+    color:var(--navy);
+    line-height:1;
+  }
+  .score-badge .num span{font-size:20px; color:var(--muted);}
+  .score-badge .label{
+    font-family:var(--font-mono);
+    font-size:11px;
+    color:var(--muted);
+    margin-top:4px;
+  }
+  .level-tag{
+    display:inline-block;
+    padding:7px 16px;
+    border-radius:20px;
+    font-size:13.5px;
+    font-weight:700;
+    font-family:var(--font-mono);
+  }
+  .level-excelente{background:var(--green-soft); color:#0b6b47;}
+  .level-bom{background:var(--cyan-soft); color:var(--cyan-dim);}
+  .level-revisar{background:var(--amber-soft); color:var(--amber-dim);}
+  .level-atencao{background:var(--red-soft); color:#9c1c2a;}
+
+  .topic-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+    gap:10px;
+  }
+  .topic-item{
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:10px 12px;
+  }
+  .topic-item .tname{font-size:12.5px; color:var(--navy); font-weight:600; margin-bottom:6px;}
+  .topic-bar-track{height:7px; background:var(--border); border-radius:5px; overflow:hidden;}
+  .topic-bar-fill{height:100%; background:var(--cyan-dim); border-radius:5px;}
+  .topic-item .tscore{font-family:var(--font-mono); font-size:11px; color:var(--muted); margin-top:5px;}
+
+  .review-heading{
+    font-family:var(--font-head);
+    font-size:22px;
+    color:var(--navy);
+    margin:34px 0 4px;
+  }
+  .review-sub{color:var(--muted); font-size:14px; margin-bottom:10px;}
+
+  footer{
+    max-width:900px;
+    margin:30px auto 10px;
+    padding:0 20px;
+    color:var(--muted);
+    font-size:12.5px;
+    text-align:center;
+  }
+
+  @media print{
+    .topbar, .btn-row, #quizForm .options input, .btn-ghost, .instructions{display:none !important;}
+    body{padding-bottom:0;}
+    .qcard{break-inside:avoid; border:1px solid #ccc;}
+    .finish-card{display:none !important;}
+  }
+  @media (max-width:560px){
+    .topbar-inner{flex-wrap:wrap;}
+    .result-top{flex-direction:column; align-items:flex-start;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="topbar-prompt"><span class="dot"></span>simulado --curso devops</div>
+    <div class="progress-wrap">
+      <div class="progress-label"><span>Progresso</span><span id="progressText">0 / 30 respondidas</span></div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="hero">
+  <p class="eyebrow">SIMULADO CONTEXTUALIZADO · LABORATÓRIO DE INFORMÁTICA</p>
+  <h1>Ecossistema DevOps — Simulado</h1>
+  <p>30 questões de múltipla escolha, construídas a partir de cenários práticos do dia a dia de equipes de desenvolvimento e operações. Ao final, você informa seu nome completo e recebe a correção comentada na hora, questão por questão.</p>
+  <div class="instructions">
+    <strong>Como funciona:</strong>
+    <ul>
+      <li>Leia o cenário de cada questão com atenção antes de marcar a alternativa.</li>
+      <li>Você pode responder na ordem que preferir e voltar para revisar antes de corrigir.</li>
+      <li>A correção só é liberada depois que todas as 30 questões forem respondidas e o nome completo for informado.</li>
+      <li>Depois de corrigir, cada questão mostra a resposta certa e uma explicação — use para estudar, não só para conferir a nota.</li>
+    </ul>
+  </div>
+</div>
+
+<main>
+  <form id="quizForm"></form>
+
+  <div class="finish-card" id="finishCard">
+    <h2>Finalizar simulado</h2>
+    <p>Confirme seu nome completo para gerar sua correção comentada.</p>
+    <div class="name-field">
+      <label for="studentName">NOME COMPLETO</label>
+      <input type="text" id="studentName" placeholder="Digite seu nome completo" autocomplete="off">
+      <div class="field-error" id="nameError">Informe seu nome completo (nome e sobrenome) para continuar.</div>
+    </div>
+    <div class="btn-row">
+      <button type="button" class="btn-primary" id="submitBtn">Corrigir simulado</button>
+      <button type="button" class="btn-ghost" id="reviewBtn">Ir para a primeira questão não respondida</button>
+    </div>
+    <div class="unanswered-note" id="unansweredNote"></div>
+  </div>
+
+  <div id="results"></div>
+</main>
+
+<footer>
+  Ecossistema DevOps · Curso Técnico de Desenvolvimento de Sistemas · SEDUC-PI
+</footer>
+
+<script>
+/* =========================================================
+   BANCO DE QUESTÕES
+   ========================================================= */
+const QUESTIONS = [
+{
+  topic: "Cultura",
+  scenario: "Em uma empresa, toda atualização de sistema leva semanas para ir ao ar porque o time de desenvolvimento entrega o código e 'passa a bola' para o time de operações colocar em produção, sem nenhuma comunicação entre eles durante o processo.",
+  question: "Qual conceito do DevOps ataca diretamente esse tipo de problema?",
+  options: ["Fim dos silos entre Dev e Ops", "Aumento do número de servidores", "Redução do orçamento de TI", "Contratação de mais desenvolvedores"],
+  correct: 0,
+  explanation: "O DevOps nasceu justamente para eliminar a barreira entre quem desenvolve e quem opera, substituindo a 'passagem de bastão' por colaboração e responsabilidade compartilhada do início ao fim. Aumentar servidores, cortar orçamento ou contratar mais gente não resolve um problema de comunicação e de processo."
+},
+{
+  topic: "Cultura & Comunicação",
+  scenario: "Um gestor passa a dar retornos frequentes e específicos ao longo do mês, em vez de esperar a avaliação anual, e também coleta a percepção de colegas, subordinados e clientes sobre o desempenho de um colaborador.",
+  question: "Essa combinação de práticas corresponde a:",
+  options: ["Feedback contínuo com avaliação 360 graus", "Sprint Planning", "Deploy contínuo", "Gestão de configuração"],
+  correct: 0,
+  explanation: "Feedback contínuo é dar orientação em tempo real, não apenas em ciclos anuais; a avaliação 360 graus amplia isso coletando a visão de várias fontes (colegas, supervisores, subordinados, clientes). Juntas, essas práticas evitam que o colaborador só descubra um problema meses depois."
+},
+{
+  topic: "Fundamentos",
+  scenario: "Uma equipe implementa testes que rodam automaticamente a cada commit e um pipeline que entrega o código em produção sem que ninguém precise clicar em nada manualmente.",
+  question: "Isso é um exemplo direto de qual pilar do DevOps?",
+  options: ["Automação", "Hierarquia rígida de decisões", "Terceirização total do time", "Centralização das decisões técnicas em uma única pessoa"],
+  correct: 0,
+  explanation: "Automação é um dos três pilares do DevOps (junto com colaboração e integração/entrega contínuas): substituir tarefas manuais e repetitivas — como testar e implantar — por processos automáticos, reduzindo erro humano e ganhando velocidade."
+},
+{
+  topic: "Ciclo de Vida",
+  scenario: "Uma equipe percebe que está recebendo muitos bugs em produção porque pula a etapa de validação automatizada do código antes de cada entrega.",
+  question: "Qual fase do ciclo de vida DevOps está sendo negligenciada?",
+  options: ["Testar", "Planejar", "Operar", "Monitorar"],
+  correct: 0,
+  explanation: "A fase de Testar existe exatamente para detectar erros antes que o código chegue à produção, por meio de testes automatizados. Pular essa etapa é o que costuma causar o aumento de bugs percebidos pelo usuário final."
+},
+{
+  topic: "Ciclo de Vida",
+  scenario: "Depois de um deploy bem-sucedido, a equipe de operações precisa garantir que a aplicação continue disponível e estável mesmo com o aumento repentino de usuários.",
+  question: "Essa responsabilidade corresponde a qual fase do ciclo de vida DevOps?",
+  options: ["Operar", "Codificar", "Compilar", "Planejar"],
+  correct: 0,
+  explanation: "Operar é a fase em que a equipe mantém a infraestrutura funcionando de forma estável, disponível e escalável — lidando com picos de acesso, capacidade de servidores e continuidade do serviço já em produção."
+},
+{
+  topic: "Metodologias Ágeis",
+  scenario: "Em uma equipe Scrum, um profissional é responsável por remover impedimentos do time e garantir que o processo ágil seja seguido, mas não decide o que será desenvolvido.",
+  question: "Quem exerce esse papel?",
+  options: ["Scrum Master", "Product Owner", "Stakeholder externo", "Cliente final"],
+  correct: 0,
+  explanation: "O Scrum Master facilita o processo e remove obstáculos do time, sem definir prioridades de produto — essa função é do Product Owner, que decide o que importa para o cliente."
+},
+{
+  topic: "Metodologias Ágeis",
+  scenario: "Uma equipe decide não trabalhar em ciclos fechados de duas a quatro semanas. Em vez disso, move cartões continuamente entre as colunas 'A fazer', 'Em progresso' e 'Concluído', com foco em identificar gargalos no fluxo de trabalho.",
+  question: "Qual metodologia está sendo usada?",
+  options: ["Kanban", "Scrum", "Cascata (Waterfall)", "Design Thinking"],
+  correct: 0,
+  explanation: "Kanban, com origem no sistema de produção da Toyota, usa um quadro visual e fluxo contínuo de trabalho — sem sprints fechadas como no Scrum — e é especialmente útil para visualizar e reduzir gargalos."
+},
+{
+  topic: "CI/CD",
+  scenario: "Um time integra o código de todos os desenvolvedores no mesmo repositório várias vezes ao dia, executando testes automáticos a cada nova integração.",
+  question: "Essa prática caracteriza:",
+  options: ["Integração Contínua (CI)", "Entrega Contínua (CD)", "Deploy manual", "Gestão de configuração"],
+  correct: 0,
+  explanation: "Integração Contínua (CI) é justamente isso: fundir o código de todos com frequência, validando cada mudança com testes automáticos, para detectar problemas cedo e manter o software sempre em estado funcional."
+},
+{
+  topic: "CI/CD",
+  scenario: "Depois de validado pelos testes automatizados, o código de uma aplicação fica sempre pronto para ser colocado em produção a qualquer momento, com o mínimo de intervenção manual.",
+  question: "Essa característica descreve:",
+  options: ["Entrega Contínua (CD)", "Integração Contínua (CI)", "Deploy manual", "Resiliência de sistemas"],
+  correct: 0,
+  explanation: "Entrega Contínua (CD) garante que todo código aprovado esteja sempre pronto para produção. A diferença em relação à CI é o foco: CI garante que o código funciona junto; CD garante que ele está pronto para chegar ao usuário."
+},
+{
+  topic: "CI/CD",
+  scenario: "Durante a etapa de testes automatizados de um pipeline de CI/CD, uma falha crítica é detectada no código.",
+  question: "De acordo com as boas práticas de CI/CD, o que deve acontecer?",
+  options: ["O pipeline é interrompido automaticamente antes de avançar para as próximas etapas", "O deploy continua normalmente e o erro é corrigido depois, já em produção", "A equipe de operações corrige o problema manualmente direto no servidor", "O código é enviado direto para o usuário final para avaliação"],
+  correct: 0,
+  explanation: "Um dos maiores benefícios do CI/CD é interromper o pipeline automaticamente quando um teste falha, impedindo que código com defeito avance para as etapas seguintes — e muito menos que chegue à produção."
+},
+{
+  topic: "CI/CD",
+  scenario: "Uma startup decide que toda mudança aprovada nos testes automatizados deve ir direto para produção, sem qualquer aprovação manual adicional.",
+  question: "Que tipo de deploy está sendo praticado?",
+  options: ["Deploy contínuo", "Deploy manual", "Deploy sem testes", "Rollback automático"],
+  correct: 0,
+  explanation: "No deploy contínuo, toda mudança que passa nos testes vai direto à produção, sem intervenção humana adicional — é o nível mais alto de automação entre os modelos manual, automático e contínuo."
+},
+{
+  topic: "CI/CD",
+  scenario: "Uma equipe conecta seu repositório Git à Vercel. A cada push em uma branch de funcionalidade, a plataforma gera automaticamente uma versão de teste acessível por link, sem afetar a produção.",
+  question: "Esse recurso da Vercel é conhecido como:",
+  options: ["Preview Deployment", "Rollback automático", "Load Balancer", "Container Registry"],
+  correct: 0,
+  explanation: "Preview Deployments criam uma versão temporária e isolada da aplicação para cada branch ou pull request, permitindo testar a mudança antes de integrá-la à produção — um dos recursos que fazem da Vercel uma ponte prática entre Dev e Ops."
+},
+{
+  topic: "Nuvem",
+  scenario: "Uma empresa quer usar análise avançada de dados e machine learning como diferencial competitivo e escolhe um provedor de nuvem reconhecido justamente por esse ponto forte.",
+  question: "Qual provedor é esse?",
+  options: ["Google Cloud Platform (GCP)", "Um provedor local sem serviços de nuvem", "Nenhum provedor específico influencia essa escolha", "Um servidor físico próprio"],
+  correct: 0,
+  explanation: "A Google Cloud Platform (GCP) tem destaque justamente em dados e machine learning, enquanto a AWS se destaca pela maior variedade de serviços e a Azure pela integração com tecnologias Microsoft."
+},
+{
+  topic: "Nuvem",
+  scenario: "Uma equipe de desenvolvimento quer focar apenas em programar e implantar suas aplicações, sem se preocupar em configurar servidores, sistema operacional ou rede.",
+  question: "Qual modelo de nuvem atende melhor a essa necessidade?",
+  options: ["PaaS (Plataforma como Serviço)", "IaaS (Infraestrutura como Serviço)", "Um servidor on-premises tradicional", "Nenhum modelo de nuvem resolveria isso"],
+  correct: 0,
+  explanation: "PaaS entrega um ambiente pronto para desenvolver e hospedar aplicações, sem que a equipe precise gerenciar servidores ou rede — diferente do IaaS, que dá controle total (e também a responsabilidade) sobre esse nível de infraestrutura."
+},
+{
+  topic: "Nuvem",
+  scenario: "Uma grande empresa com processamento de dados pesados precisa de controle total sobre o hardware virtual, o sistema operacional e as configurações de rede.",
+  question: "Qual modelo de nuvem oferece esse nível de controle?",
+  options: ["IaaS (Infraestrutura como Serviço)", "SaaS (Software como Serviço)", "PaaS (Plataforma como Serviço)", "Nenhum modelo de nuvem oferece esse controle"],
+  correct: 0,
+  explanation: "IaaS oferece o maior nível de controle entre os três modelos: a empresa gerencia o hardware virtual, o sistema operacional e a rede, arcando também com mais responsabilidade de configuração — ideal para quem precisa de controle total."
+},
+{
+  topic: "Automação",
+  scenario: "Um chatbot responde automaticamente às dúvidas mais comuns dos clientes, reduzindo o tempo médio de resposta da central de atendimento.",
+  question: "Esse é um exemplo de automação aplicada a qual frente?",
+  options: ["Suporte", "Segurança", "Desenvolvimento", "Infraestrutura"],
+  correct: 0,
+  explanation: "A automação em TI atua em quatro frentes — segurança, suporte, desenvolvimento e infraestrutura. Um chatbot que agiliza o atendimento ao cliente é um exemplo claro de automação aplicada ao suporte."
+},
+{
+  topic: "Automação & IaC",
+  scenario: "Em vez de configurar manualmente 50 servidores um por um, uma equipe escreve um único arquivo de texto que descreve como todos devem ser configurados e o aplica automaticamente a todos eles.",
+  question: "Essa prática é conhecida como:",
+  options: ["Infraestrutura como Código (IaC)", "Deploy manual", "Feedback contínuo", "Kanban"],
+  correct: 0,
+  explanation: "Infraestrutura como Código (IaC) trata a configuração de servidores como um arquivo versionável, permitindo aplicar a mesma configuração a dezenas de máquinas em minutos, de forma rastreável e reversível."
+},
+{
+  topic: "Automação & IaC",
+  scenario: "Uma equipe escreve um arquivo descrevendo apenas o resultado final desejado da infraestrutura ('quero 3 servidores e 1 banco de dados'), sem detalhar o passo a passo de como chegar lá.",
+  question: "Essa abordagem declarativa é característica de qual ferramenta?",
+  options: ["Terraform", "Ansible", "Jenkins", "Grafana"],
+  correct: 0,
+  explanation: "O Terraform usa uma linguagem declarativa: você descreve 'o quê' deseja como resultado final e a ferramenta calcula como chegar lá. Já o Ansible, com seus playbooks, é mais focado em descrever 'como' replicar passos de configuração em várias máquinas."
+},
+{
+  topic: "Containers",
+  scenario: "Um desenvolvedor empacota sua aplicação junto com todas as bibliotecas e dependências necessárias, garantindo que ela rode da mesma forma no notebook dele e no servidor de produção.",
+  question: "Essa prática, que resolve o clássico problema de 'na minha máquina funciona', é chamada de:",
+  options: ["Contêinerização (Docker)", "Virtualização completa de rede", "Balanceamento de carga", "Versionamento de banco de dados"],
+  correct: 0,
+  explanation: "Contêineres como o Docker empacotam a aplicação e suas dependências em uma unidade que roda de forma idêntica em qualquer ambiente, eliminando divergências entre a máquina do desenvolvedor e o servidor de produção."
+},
+{
+  topic: "Kubernetes",
+  scenario: "No Kubernetes, uma equipe precisa identificar qual é a menor unidade gerenciável da plataforma, que pode conter um ou mais contêineres executando juntos.",
+  question: "Qual é essa unidade?",
+  options: ["Pod", "Deployment", "Service", "Cluster"],
+  correct: 0,
+  explanation: "O Pod é a menor unidade gerenciável no Kubernetes. Ele pode conter um ou mais contêineres que compartilham recursos e são tratados como uma única unidade de execução."
+},
+{
+  topic: "Kubernetes",
+  scenario: "Um Pod de uma aplicação falha inesperadamente. O Kubernetes precisa continuar direcionando o tráfego dos usuários apenas para os Pods que estão saudáveis, funcionando como um balanceador de carga.",
+  question: "Qual recurso do Kubernetes é responsável por expor os Pods e balancear esse tráfego?",
+  options: ["Service", "Deployment", "Dockerfile", "Um Pod isolado, sem outros recursos"],
+  correct: 0,
+  explanation: "O Service expõe um conjunto de Pods e funciona como balanceador de carga, direcionando o tráfego para as instâncias saudáveis — sem depender de saber exatamente qual Pod específico está de pé em cada momento."
+},
+{
+  topic: "Kubernetes",
+  scenario: "Uma equipe define que sua aplicação deve sempre ter 5 réplicas rodando ao mesmo tempo. Se uma falhar, outra deve subir automaticamente para manter esse número constante.",
+  question: "Qual recurso do Kubernetes garante isso?",
+  options: ["Deployment", "Pod isolado", "Service", "Docker Hub"],
+  correct: 0,
+  explanation: "O Deployment garante que o número desejado de réplicas de um Pod esteja sempre em execução, recriando automaticamente qualquer instância que falhe — é a peça responsável pela alta disponibilidade no Kubernetes."
+},
+{
+  topic: "Git",
+  scenario: "Um desenvolvedor cria uma cópia isolada do código para trabalhar em uma nova funcionalidade sem afetar o código principal do projeto, e depois de pronta, integra as mudanças de volta.",
+  question: "Essa prática é conhecida como:",
+  options: ["Branch", "Commit", "Push", "Pull"],
+  correct: 0,
+  explanation: "Um branch isola o desenvolvimento de uma funcionalidade específica. Depois de concluída e testada, as mudanças voltam ao branch principal por meio de um merge — sem travar o trabalho do restante da equipe."
+},
+{
+  topic: "Git",
+  scenario: "Depois de testar suas alterações localmente, um desenvolvedor precisa enviá-las para o repositório remoto compartilhado com o restante da equipe.",
+  question: "Qual comando ele deve usar?",
+  options: ["git push", "git pull", "git clone", "git status apenas"],
+  correct: 0,
+  explanation: "git push envia as alterações commitadas localmente para o repositório remoto. Já o git pull faz o caminho inverso: busca e integra as atualizações que a equipe já enviou."
+},
+{
+  topic: "Observabilidade",
+  scenario: "O time percebe um pico repentino no uso de CPU do servidor de produção e recebe um alerta automático antes mesmo que os usuários notem qualquer lentidão.",
+  question: "Esse alerta é resultado de qual prática?",
+  options: ["Monitoramento de aplicações", "Gestão de configuração", "Versionamento de código", "Feedback 360 graus"],
+  correct: 0,
+  explanation: "O monitoramento de aplicações observa continuamente métricas como uso de CPU, tempo de resposta e taxa de erro, de forma proativa — permitindo agir antes que o problema afete a experiência do usuário."
+},
+{
+  topic: "Observabilidade",
+  scenario: "Depois de uma falha em produção, a equipe cruza logs, métricas e o rastro (trace) de uma requisição entre vários serviços diferentes para entender exatamente onde e por que o erro aconteceu.",
+  question: "Essa prática combinada é chamada de:",
+  options: ["Observabilidade", "Automação", "Deploy contínuo", "Kanban"],
+  correct: 0,
+  explanation: "Observabilidade vai além do alerta simples do monitoramento: combina logs, métricas e traces para explicar a causa raiz de uma falha, mostrando exatamente onde e por que ela ocorreu."
+},
+{
+  topic: "Segurança",
+  scenario: "Uma equipe passa a incluir testes automatizados de vulnerabilidade dentro do próprio pipeline de CI/CD, em vez de verificar a segurança apenas depois que o sistema já está em produção.",
+  question: "Essa mudança de mentalidade é conhecida como:",
+  options: ["DevSecOps", "SRE", "Kanban", "Feedback contínuo"],
+  correct: 0,
+  explanation: "DevSecOps estende o DevOps incorporando segurança desde o início do processo — inclusive dentro do pipeline de CI/CD — em vez de tratá-la como uma etapa isolada e tardia."
+},
+{
+  topic: "Resiliência",
+  scenario: "Um sistema crítico mantém dois servidores idênticos funcionando ao mesmo tempo, de forma que, se um falhar, o outro assume automaticamente sem interrupção perceptível do serviço.",
+  question: "Esse pilar da resiliência de sistemas é chamado de:",
+  options: ["Redundância", "Segmentação", "Detecção rápida", "Recuperação rápida"],
+  correct: 0,
+  explanation: "Redundância é a duplicação de componentes críticos, garantindo que a falha de um não interrompa o serviço, pois outro componente equivalente assume imediatamente."
+},
+{
+  topic: "Gestão de Configuração",
+  scenario: "Uma empresa utiliza o Terraform para versionar toda a configuração de sua infraestrutura de nuvem, garantindo que o ambiente de testes seja uma réplica exata do ambiente de produção.",
+  question: "Esse controle rastreável de mudanças é característica de:",
+  options: ["Gestão de configuração", "Feedback 360 graus", "Scrum", "Observabilidade"],
+  correct: 0,
+  explanation: "Gestão de configuração é o controle das alterações em código, infraestrutura e sistemas, garantindo previsibilidade — como manter ambientes de teste e produção como réplicas exatas um do outro."
+},
+{
+  topic: "Tendências",
+  scenario: "Uma grande empresa de tecnologia passa a tratar problemas de operação como problemas de engenharia de software, definindo métricas claras de confiabilidade para seus sistemas.",
+  question: "Essa abordagem é conhecida como:",
+  options: ["SRE (Site Reliability Engineering)", "Kanban", "IaaS", "DevSecOps"],
+  correct: 0,
+  explanation: "SRE (Site Reliability Engineering), criado pelo Google, trata operações como um problema de software, com métricas objetivas de confiabilidade — uma das tendências atuais que se soma ao DevOps."
+}
+];
+
+/* =========================================================
+   RENDERIZAÇÃO
+   ========================================================= */
+const form = document.getElementById('quizForm');
+const total = QUESTIONS.length;
+
+QUESTIONS.forEach((q, i) => {
+  const card = document.createElement('div');
+  card.className = 'qcard';
+  card.id = 'qcard-' + i;
+
+  const optionsHTML = q.options.map((opt, j) => {
+    const letter = String.fromCharCode(65 + j);
+    return `
+      <label class="option" data-qi="${i}" data-oi="${j}">
+        <input type="radio" name="q${i}" value="${j}">
+        <span class="optletter">${letter}.</span>
+        <span class="opttext">${opt}</span>
+      </label>`;
+  }).join('');
+
+  card.innerHTML = `
+    <div class="qmeta">
+      <span class="qnum">Questão ${String(i + 1).padStart(2, '0')} / ${total}</span>
+      <span class="qtopic">${q.topic}</span>
+    </div>
+    <p class="qscenario">${q.scenario}</p>
+    <p class="qtext">${q.question}</p>
+    <div class="options">${optionsHTML}</div>
+    <div class="verdict" id="verdict-${i}"></div>
+  `;
+  form.appendChild(card);
+});
+
+/* seleção visual + progresso */
+function updateProgress() {
+  let answered = 0;
+  QUESTIONS.forEach((q, i) => {
+    if (form.querySelector(`input[name="q${i}"]:checked`)) answered++;
+  });
+  document.getElementById('progressText').textContent = answered + ' / ' + total + ' respondidas';
+  document.getElementById('progressFill').style.width = (answered / total * 100) + '%';
+  return answered;
+}
+
+form.addEventListener('change', (e) => {
+  if (e.target.matches('input[type=radio]')) {
+    const qi = e.target.closest('.qcard').id.replace('qcard-', '');
+    document.querySelectorAll(`.option[data-qi="${qi}"]`).forEach(opt => opt.classList.remove('selected'));
+    e.target.closest('.option').classList.add('selected');
+    e.target.closest('.qcard').classList.remove('unanswered-flag');
+    updateProgress();
+  }
+});
+
+updateProgress();
+
+/* =========================================================
+   FINALIZAÇÃO E CORREÇÃO
+   ========================================================= */
+const nameInput = document.getElementById('studentName');
+const nameError = document.getElementById('nameError');
+const unansweredNote = document.getElementById('unansweredNote');
+
+document.getElementById('reviewBtn').addEventListener('click', () => {
+  for (let i = 0; i < total; i++) {
+    if (!form.querySelector(`input[name="q${i}"]:checked`)) {
+      document.getElementById('qcard-' + i).scrollIntoView({behavior:'smooth', block:'center'});
+      document.getElementById('qcard-' + i).classList.add('unanswered-flag');
+      return;
+    }
+  }
+  alert('Todas as questões já foram respondidas.');
+});
+
+document.getElementById('submitBtn').addEventListener('click', () => {
+  const answered = updateProgress();
+  const name = nameInput.value.trim();
+  const validName = /^[A-Za-zÀ-ÖØ-öø-ÿ]+(\s+[A-Za-zÀ-ÖØ-öø-ÿ]+)+$/.test(name);
+
+  let ok = true;
+
+  if (answered < total) {
+    const missing = [];
+    for (let i = 0; i < total; i++) {
+      if (!form.querySelector(`input[name="q${i}"]:checked`)) missing.push(i + 1);
+    }
+    unansweredNote.style.display = 'block';
+    unansweredNote.textContent = `Faltam ${missing.length} questão(ões) sem resposta: ${missing.join(', ')}.`;
+    ok = false;
+  } else {
+    unansweredNote.style.display = 'none';
+  }
+
+  if (!validName) {
+    nameError.style.display = 'block';
+    ok = false;
+  } else {
+    nameError.style.display = 'none';
+  }
+
+  if (!ok) {
+    if (answered < total) {
+      document.getElementById('reviewBtn').click();
+    } else {
+      nameInput.focus();
+    }
+    return;
+  }
+
+  gradeQuiz(name);
+});
+
+function gradeQuiz(name) {
+  let score = 0;
+  const topicStats = {};
+
+  QUESTIONS.forEach((q, i) => {
+    const card = document.getElementById('qcard-' + i);
+    const selectedInput = form.querySelector(`input[name="q${i}"]:checked`);
+    const selected = parseInt(selectedInput.value, 10);
+    const isCorrect = selected === q.correct;
+    if (isCorrect) score++;
+
+    if (!topicStats[q.topic]) topicStats[q.topic] = {correct:0, total:0};
+    topicStats[q.topic].total++;
+    if (isCorrect) topicStats[q.topic].correct++;
+
+    card.classList.add('graded');
+    document.querySelectorAll(`.option[data-qi="${i}"]`).forEach(opt => {
+      opt.querySelector('input').disabled = true;
+      const oi = parseInt(opt.dataset.oi, 10);
+      if (oi === q.correct) opt.classList.add('correct-answer');
+      else if (oi === selected) opt.classList.add('wrong-answer');
+    });
+
+    const verdict = document.getElementById('verdict-' + i);
+    verdict.className = 'verdict ' + (isCorrect ? 'ok' : 'no');
+    verdict.innerHTML = `
+      <span class="tag">${isCorrect ? '✓ Você acertou' : '✗ Você errou — resposta certa: ' + String.fromCharCode(65 + q.correct) + '. ' + q.options[q.correct]}</span>
+      <p>${q.explanation}</p>
+    `;
+  });
+
+  document.querySelectorAll('#quizForm input[type=radio]').forEach(inp => inp.disabled = true);
+  document.getElementById('finishCard').style.display = 'none';
+
+  renderResults(name, score, topicStats);
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('results').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function renderResults(name, score, topicStats) {
+  const pct = Math.round(score / total * 100);
+  let level, levelClass;
+  if (pct >= 90) { level = 'Excelente domínio do conteúdo'; levelClass = 'level-excelente'; }
+  else if (pct >= 70) { level = 'Bom domínio, com pontos a reforçar'; levelClass = 'level-bom'; }
+  else if (pct >= 50) { level = 'Satisfatório — revise os temas abaixo'; levelClass = 'level-revisar'; }
+  else { level = 'Recomenda-se revisar o material com atenção'; levelClass = 'level-atencao'; }
+
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('pt-BR') + ' às ' + now.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+
+  const topicHTML = Object.keys(topicStats).map(t => {
+    const st = topicStats[t];
+    const p = Math.round(st.correct / st.total * 100);
+    return `
+      <div class="topic-item">
+        <div class="tname">${t}</div>
+        <div class="topic-bar-track"><div class="topic-bar-fill" style="width:${p}%"></div></div>
+        <div class="tscore">${st.correct}/${st.total} acertos (${p}%)</div>
+      </div>`;
+  }).join('');
+
+  const results = document.getElementById('results');
+  results.innerHTML = `
+    <div class="result-summary">
+      <div class="result-top">
+        <div class="result-student">
+          <p>ALUNO(A)</p>
+          <h3>${escapeHTML(name)}</h3>
+          <p style="margin-top:6px;">Corrigido em ${dateStr}</p>
+        </div>
+        <div class="score-badge">
+          <div class="num">${score}<span>/${total}</span></div>
+          <div class="label">${pct}% DE ACERTOS</div>
+        </div>
+        <span class="level-tag ${levelClass}">${level}</span>
+      </div>
+      <div class="topic-grid">${topicHTML}</div>
+      <div class="btn-row" style="margin-top:22px;">
+        <button type="button" class="btn-primary" onclick="window.print()" style="background:var(--navy); color:#fff;">Imprimir / salvar correção em PDF</button>
+        <button type="button" class="btn-ghost" style="color:var(--navy); border-color:var(--border);" onclick="location.reload()">Refazer o simulado</button>
+      </div>
+    </div>
+    <h2 class="review-heading">Correção comentada, questão por questão</h2>
+    <p class="review-sub">Role a página para revisar cada questão: a alternativa correta aparece em verde e, se você errou, sua escolha aparece em vermelho, com a explicação logo abaixo.</p>
+  `;
+}
+
+function escapeHTML(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+</script>
+</body>
+</html>
