@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Simulado de DevOps: aulas 1 a 32</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><span><strong>CETI Augustinho Brandão</strong> · Prof. Gilvan Alves</span><span>Ecossistema DevOps</span></div>
+
+  <!-- abertura -->
+  <section id="s-intro" class="hero">
+    <h1>Simulado de DevOps</h1>
+    <p class="lead">20 situações do dia a dia de uma equipe de tecnologia, cobrindo as aulas 1 a 32. Leia o contexto, pense no que você faria e escolha a melhor resposta.</p>
+    <div class="rules">
+      <p>Você pode ir e voltar entre as questões antes de finalizar.</p>
+      <p>Para ver a correção, é preciso informar nome e sobrenome.</p>
+      <p>Cada vez que o simulado é refeito, as questões e as alternativas mudam de lugar.</p>
+    </div>
+    <button class="btn amber" id="b-start">Começar simulado</button>
+  </section>
+
+  <!-- questões -->
+  <section id="s-quiz" class="hidden">
+    <nav class="pipe" id="pipe" aria-label="Questões"></nav>
+    <div class="pipe-info"><span id="pi-count"></span><span id="pi-pos"></span></div>
+    <article class="qcard" id="qcard" aria-live="polite"></article>
+    <div class="nav">
+      <button class="btn ghost" id="b-prev">Anterior</button>
+      <button class="btn" id="b-next">Próxima</button>
+      <button class="btn amber hidden" id="b-finish">Finalizar e ver resultado</button>
+    </div>
+  </section>
+
+  <!-- identificação -->
+  <section id="s-id" class="hidden">
+    <div class="card">
+      <h2>Quem está fazendo o simulado?</h2>
+      <p class="meta">Seu nome aparece no resultado final junto com um código de verificação.</p>
+      <div class="field"><label for="f-nome">Nome</label><input id="f-nome" autocomplete="given-name" maxlength="40"><div class="err" id="e-nome"></div></div>
+      <div class="field"><label for="f-sob">Sobrenome</label><input id="f-sob" autocomplete="family-name" maxlength="60"><div class="err" id="e-sob"></div></div>
+      <div class="actions">
+        <button class="btn ghost" id="b-back">Revisar respostas</button>
+        <button class="btn amber" id="b-validate">Validar e ver resultado</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- resultado -->
+  <section id="s-res" class="hidden">
+    <div class="card">
+      <h2 id="r-name"></h2>
+      <div class="score"><div class="big" id="r-score"></div><div><div class="verdict" id="r-verdict"></div><div class="meta" id="r-pct"></div></div></div>
+      <p class="meta" id="r-meta"></p>
+      <div class="actions">
+        <button class="btn amber" id="b-redo">Refazer simulado</button>
+        <button class="btn ghost" id="b-print">Imprimir resultado</button>
+      </div>
+    </div>
+    <div class="review" id="review"></div>
+  </section>
+</div>
+
+<script src="js/questoes.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
